@@ -1,0 +1,737 @@
+openapi: 3.0.0
+info:
+  description: Booking API for 3rd party consumption
+  title: Vetstoria Booking API
+  version: "1.0"
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/vetstoria/Booking-API/1.0
+paths:
+  /partners/authentication:
+    post:
+      description: Authenticate the partner
+      requestBody:
+        $ref: '#/components/requestBodies/inline_object'
+        content:
+          application/json:
+            schema:
+              properties:
+                key:
+                  example: ad34g2q2542fg
+                  type: string
+                secret:
+                  example: n8734fh3874hf783hf3f43
+                  type: string
+              type: object
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+          description: Authenticated
+        409:
+          description: Bad data
+      tags:
+      - Authentication
+  /preferences:
+    get:
+      description: Get metadata relevant to the booking process
+      parameters:
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+          description: Booking related metadata
+        401:
+          description: Access token is missing or invalid
+      security:
+      - bearerAuth: []
+      tags:
+      - Data Retrieval
+  /locations:
+    get:
+      description: Get clinic locations
+      parameters:
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LocationDTO'
+                type: array
+          description: List of locations
+        401:
+          description: Access token is missing or invalid
+      security:
+      - bearerAuth: []
+      tags:
+      - Data Retrieval
+  /locations/{id}/species:
+    get:
+      description: Get species
+      parameters:
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      - description: Location ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/LocationId'
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                example:
+                - id: 3
+                  name: Cat
+                  displayOrder: 2
+                - id: 5
+                  name: Dog
+                  displayOrder: 1
+                items:
+                  $ref: '#/components/schemas/SpeciesDTO'
+                type: array
+          description: List of species available for the specified location
+        401:
+          description: Access token is missing or invalid
+      security:
+      - bearerAuth: []
+      summary: Species
+      tags:
+      - Data Retrieval
+  /locations/{id}/appointmenttypes:
+    get:
+      description: Get appointment types
+      parameters:
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      - description: Location ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/LocationId'
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AppointmentTypeDTO'
+                type: array
+          description: List of appointment types available for the selected location
+        401:
+          description: Access token is missing or invalid
+      security:
+      - bearerAuth: []
+      tags:
+      - Data Retrieval
+  /locations/{id}/schedules:
+    get:
+      description: Get schedules
+      parameters:
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      - description: Location ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/LocationId'
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ScheduleDTO'
+                type: array
+          description: List of schedules available for the specified location
+        401:
+          description: Access token is missing or invalid
+      security:
+      - bearerAuth: []
+      tags:
+      - Data Retrieval
+  /slots:
+    post:
+      description: Find slots for booking based on the specified parameters
+      parameters:
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvailabilityRequestDTO'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/AvailabilityResponseSlotsDTO'
+                type: array
+          description: List of slots available for booking
+        401:
+          description: Access token is missing or invalid
+        409:
+          description: Bad data
+      security:
+      - bearerAuth: []
+      tags:
+      - Data Retrieval
+  /bookings:
+    post:
+      description: Create booking
+      parameters:
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequestDTO'
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingDTO'
+          description: Appointments booked
+        401:
+          description: Access token is missing or invalid
+        409:
+          content:
+            text/plain:
+              schema:
+                example: Timeslot unavailable. Please select a different slot.
+                type: string
+          description: Bad data
+      security:
+      - bearerAuth: []
+      tags:
+      - Booking
+  /bookings/{id}:
+    delete:
+      description: Delete booking
+      parameters:
+      - description: Booking ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/BookingId'
+        style: simple
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      responses:
+        204:
+          description: Booking deleted
+        401:
+          description: Access token is missing or invalid
+        403:
+          description: Delete not allowed
+        404:
+          description: Not found
+      security:
+      - bearerAuth: []
+      tags:
+      - Booking
+    get:
+      description: Get booking
+      parameters:
+      - description: Booking ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/BookingId'
+        style: simple
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingDTO'
+          description: Booking details
+        401:
+          description: Access token is missing or invalid
+        404:
+          description: Not found
+      security:
+      - bearerAuth: []
+      tags:
+      - Booking
+    put:
+      description: Update booking
+      parameters:
+      - description: Booking ID
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          $ref: '#/components/schemas/BookingId'
+        style: simple
+      - description: |
+          Site-Hash of the Vet Practice's account on Vetstoria platform
+        explode: false
+        in: header
+        name: Site-Hash
+        required: true
+        schema:
+          example: D23H8932GD
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequestDTO'
+        required: true
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingDTO'
+          description: Booking updated
+        401:
+          description: Access token is missing or invalid
+        403:
+          description: Update not allowed
+        404:
+          description: Not found
+      security:
+      - bearerAuth: []
+      tags:
+      - Booking
+components:
+  parameters:
+    LocationId:
+      description: Location ID
+      explode: false
+      in: path
+      name: id
+      required: true
+      schema:
+        $ref: '#/components/schemas/LocationId'
+      style: simple
+    SiteHash:
+      description: |
+        Site-Hash of the Vet Practice's account on Vetstoria platform
+      explode: false
+      in: header
+      name: Site-Hash
+      required: true
+      schema:
+        example: D23H8932GD
+        type: string
+      style: simple
+  requestBodies:
+    inline_object:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/inline_object'
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+  schemas:
+    SpeciesDTO:
+      properties:
+        id:
+          example: 5
+          format: int32
+          type: integer
+        name:
+          example: Dog
+          type: string
+        displayOrder:
+          example: 1
+          format: int32
+          type: integer
+      type: object
+    AppointmentTypeDTO:
+      example:
+        name: Vaccination
+        id: 33
+      properties:
+        id:
+          example: 33
+          format: int32
+          type: integer
+        name:
+          example: Vaccination
+          type: string
+      type: object
+    LocationDTO:
+      example:
+        name: City Clinic
+        id: 21
+      properties:
+        id:
+          example: 21
+          format: int32
+          type: integer
+        name:
+          example: City Clinic
+          type: string
+      type: object
+    ScheduleDTO:
+      example:
+        name: Dr. John Smith
+        id: 144
+      properties:
+        id:
+          example: 144
+          format: int32
+          type: integer
+        name:
+          example: Dr. John Smith
+          type: string
+      type: object
+    AvailabilityRequestDTO:
+      properties:
+        locationId:
+          example: 21
+          format: int32
+          type: integer
+        scheduleIds:
+          description: Array of schedule ids to get availabilities.
+          example:
+          - 144
+          - 145
+          items:
+            format: int32
+            type: integer
+          type: array
+        period:
+          $ref: '#/components/schemas/PeriodDTO'
+        appointments:
+          example:
+          - index: 1
+            appointmentTypeId: 33
+            speciesId: 5
+          - index: 2
+            appointmentTypeId: 54
+            speciesId: 3
+          items:
+            $ref: '#/components/schemas/AvailabilityRequestAppointmentDTO'
+          type: array
+      required:
+      - appointments
+      - locationId
+      - period
+      - scheduleIds
+      type: object
+    PeriodDTO:
+      properties:
+        from:
+          example: 2019-01-01T00:00:00+01:30
+          type: string
+        to:
+          example: 2019-01-02T23:59:59+01:30
+          type: string
+      required:
+      - from
+      - to
+      type: object
+    AvailabilityRequestAppointmentDTO:
+      properties:
+        index:
+          example: 1
+          format: int32
+          minimum: 1
+          type: integer
+        appointmentTypeId:
+          example: 33
+          format: int32
+          type: integer
+        speciesId:
+          example: 5
+          format: int32
+          type: integer
+      required:
+      - appointmentTypeId
+      - index
+      - speciesId
+      type: object
+    AvailabilityResponseSlotsDTO:
+      example:
+        slot: 2000-01-23T04:56:07.000+00:00
+        scheduleId: 144
+      properties:
+        scheduleId:
+          example: 144
+          format: int32
+          type: integer
+        slot:
+          format: date-time
+          type: string
+      type: object
+    BookingRequestDTO:
+      properties:
+        locationId:
+          example: 21
+          format: int32
+          type: integer
+        scheduleId:
+          example: 144
+          format: int32
+          type: integer
+        slot:
+          format: date-time
+          type: string
+        client:
+          $ref: '#/components/schemas/ClientDTO'
+        appointments:
+          example:
+          - index: 1
+            appointmentTypeId: 33
+            speciesId: 5
+            patientName: Roger
+            notes: Rogger is refusing food since last Tuesday.
+          - index: 2
+            appointmentTypeId: 54
+            speciesId: 3
+            patientName: Toby
+            notes: Toby is too agressive lately.
+          items:
+            $ref: '#/components/schemas/BookingRequestAppointmentDTO'
+          type: array
+      required:
+      - appointments
+      - client
+      - locationId
+      - scheduleId
+      - slot
+      type: object
+    BookingRequestAppointmentDTO:
+      allOf:
+      - $ref: '#/components/schemas/AvailabilityRequestAppointmentDTO'
+      - properties:
+          patientName:
+            example: Roger
+            type: string
+          notes:
+            example: My pet is refusing food since last Tuesday.
+            type: string
+        required:
+        - notes
+        - patientName
+        type: object
+    ClientDTO:
+      properties:
+        clientId:
+          example: ukdemo-2324-cx45432
+          type: string
+        firstName:
+          example: John
+          type: string
+        lastname:
+          example: Smith
+          type: string
+        email:
+          example: johnsmith@email.com
+          format: email
+          type: string
+        phone:
+          example: +442071646078
+          pattern: ^(\+\d{2})?\d{10}$
+          type: string
+      required:
+      - email
+      - lastName
+      - phone
+      type: object
+    AppointmentDTO:
+      allOf:
+      - $ref: '#/components/schemas/BookingRequestAppointmentDTO'
+      - properties:
+          time:
+            $ref: '#/components/schemas/Timestamp'
+          patientId:
+            example: ukdemo-2324-px11213
+            type: string
+        required:
+        - time
+        type: object
+    BookingDTO:
+      allOf:
+      - $ref: '#/components/schemas/BookingRequestDTO'
+      - properties:
+          BookingId:
+            $ref: '#/components/schemas/BookingId'
+          appointments:
+            example:
+            - index: 1
+              appointmentTypeId: 33
+              speciesId: 5
+              patientName: Roger
+              notes: Rogger is refusing food since last Tuesday.
+              time: 2019-01-01T09:15:00+01:30
+              patientId: ukdemo-2324-px11213
+            - index: 2
+              appointmentTypeId: 54
+              speciesId: 3
+              patientName: Toby
+              notes: Toby is too agressive lately.
+              time: 2019-01-01T09:30:00+01:30
+              patientId: null
+            items:
+              $ref: '#/components/schemas/AppointmentDTO'
+            type: array
+        required:
+        - BookingId
+        type: object
+    LocationId:
+      example: 21
+      format: int32
+      type: integer
+    AppointmentTypeId:
+      example: 33
+      format: int32
+      type: integer
+    SpeciesId:
+      example: 5
+      format: int32
+      type: integer
+    ScheduleId:
+      example: 144
+      format: int32
+      type: integer
+    Timestamp:
+      format: date-time
+      type: string
+    BookingId:
+      example: 4DG45H56HDG345SD2E3A82
+      type: string
+    inline_object:
+      properties:
+        key:
+          example: ad34g2q2542fg
+          type: string
+        secret:
+          example: n8734fh3874hf783hf3f43
+          type: string
+      type: object
+    inline_response_200:
+      example:
+        expiry: 2000-01-23T04:56:07.000+00:00
+        token: 003d30d-dmmo030d339k3kd-3d39d93k
+      properties:
+        token:
+          example: 003d30d-dmmo030d339k3kd-3d39d93k
+          type: string
+        expiry:
+          format: date-time
+          type: string
+    inline_response_200_1:
+      example:
+        maxAppointmentCount: 2
+      properties:
+        maxAppointmentCount:
+          example: 2
+          format: int32
+          type: integer
+  securitySchemes:
+    bearerAuth:
+      scheme: bearer
+      type: http

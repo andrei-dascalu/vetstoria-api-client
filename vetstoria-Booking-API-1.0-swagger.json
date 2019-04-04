@@ -1,0 +1,747 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "version" : "1.0",
+    "title" : "Vetstoria Booking API",
+    "description" : "Booking API for 3rd party consumption"
+  },
+  "paths" : {
+    "/partners/authentication" : {
+      "post" : {
+        "description" : "Authenticate the partner",
+        "tags" : [ "Authentication" ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "key" : {
+                    "type" : "string",
+                    "example" : "ad34g2q2542fg"
+                  },
+                  "secret" : {
+                    "type" : "string",
+                    "example" : "n8734fh3874hf783hf3f43"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Authenticated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "token" : {
+                      "type" : "string",
+                      "example" : "003d30d-dmmo030d339k3kd-3d39d93k"
+                    },
+                    "expiry" : {
+                      "$ref" : "#/components/schemas/Timestamp"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Bad data"
+          }
+        }
+      }
+    },
+    "/preferences" : {
+      "parameters" : [ {
+        "$ref" : "#/components/parameters/SiteHash"
+      } ],
+      "get" : {
+        "description" : "Get metadata relevant to the booking process",
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "tags" : [ "Data Retrieval" ],
+        "responses" : {
+          "200" : {
+            "description" : "Booking related metadata",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "maxAppointmentCount" : {
+                      "type" : "integer",
+                      "example" : 2
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/locations" : {
+      "parameters" : [ {
+        "$ref" : "#/components/parameters/SiteHash"
+      } ],
+      "get" : {
+        "description" : "Get clinic locations",
+        "tags" : [ "Data Retrieval" ],
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "List of locations",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LocationDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/locations/{id}/species" : {
+      "parameters" : [ {
+        "$ref" : "#/components/parameters/SiteHash"
+      }, {
+        "$ref" : "#/components/parameters/LocationId"
+      } ],
+      "get" : {
+        "summary" : "Species",
+        "description" : "Get species",
+        "tags" : [ "Data Retrieval" ],
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "List of species available for the specified location",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SpeciesDTO"
+                  },
+                  "example" : [ {
+                    "id" : 3,
+                    "name" : "Cat",
+                    "displayOrder" : 2
+                  }, {
+                    "id" : 5,
+                    "name" : "Dog",
+                    "displayOrder" : 1
+                  } ]
+                }
+              }
+            }
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/locations/{id}/appointmenttypes" : {
+      "parameters" : [ {
+        "$ref" : "#/components/parameters/SiteHash"
+      }, {
+        "$ref" : "#/components/parameters/LocationId"
+      } ],
+      "get" : {
+        "description" : "Get appointment types",
+        "tags" : [ "Data Retrieval" ],
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "List of appointment types available for the selected location",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AppointmentTypeDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/locations/{id}/schedules" : {
+      "parameters" : [ {
+        "$ref" : "#/components/parameters/SiteHash"
+      }, {
+        "$ref" : "#/components/parameters/LocationId"
+      } ],
+      "get" : {
+        "description" : "Get schedules",
+        "tags" : [ "Data Retrieval" ],
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "List of schedules available for the specified location",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ScheduleDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/slots" : {
+      "parameters" : [ {
+        "$ref" : "#/components/parameters/SiteHash"
+      } ],
+      "post" : {
+        "description" : "Find slots for booking based on the specified parameters",
+        "tags" : [ "Data Retrieval" ],
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AvailabilityRequestDTO"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "List of slots available for booking",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/AvailabilityResponseSlotsDTO"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          },
+          "409" : {
+            "description" : "Bad data"
+          }
+        }
+      }
+    },
+    "/bookings" : {
+      "parameters" : [ {
+        "$ref" : "#/components/parameters/SiteHash"
+      } ],
+      "post" : {
+        "description" : "Create booking",
+        "tags" : [ "Booking" ],
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookingRequestDTO"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Appointments booked",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BookingDTO"
+                }
+              }
+            }
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          },
+          "409" : {
+            "description" : "Bad data",
+            "content" : {
+              "text/plain" : {
+                "schema" : {
+                  "type" : "string",
+                  "example" : "Timeslot unavailable. Please select a different slot."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bookings/{id}" : {
+      "parameters" : [ {
+        "in" : "path",
+        "name" : "id",
+        "description" : "Booking ID",
+        "required" : true,
+        "schema" : {
+          "$ref" : "#/components/schemas/BookingId"
+        }
+      }, {
+        "$ref" : "#/components/parameters/SiteHash"
+      } ],
+      "get" : {
+        "description" : "Get booking",
+        "tags" : [ "Booking" ],
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Booking details",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BookingDTO"
+                }
+              }
+            }
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          },
+          "404" : {
+            "description" : "Not found"
+          }
+        }
+      },
+      "put" : {
+        "description" : "Update booking",
+        "tags" : [ "Booking" ],
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "required" : true,
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BookingRequestDTO"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Booking updated",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BookingDTO"
+                }
+              }
+            }
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          },
+          "403" : {
+            "description" : "Update not allowed"
+          },
+          "404" : {
+            "description" : "Not found"
+          }
+        }
+      },
+      "delete" : {
+        "description" : "Delete booking",
+        "tags" : [ "Booking" ],
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Booking deleted"
+          },
+          "401" : {
+            "$ref" : "#/components/responses/UnauthorizedError"
+          },
+          "403" : {
+            "description" : "Delete not allowed"
+          },
+          "404" : {
+            "description" : "Not found"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "SpeciesDTO" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/SpeciesId"
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Dog"
+          },
+          "displayOrder" : {
+            "type" : "integer",
+            "example" : 1
+          }
+        }
+      },
+      "AppointmentTypeDTO" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/AppointmentTypeId"
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Vaccination"
+          }
+        }
+      },
+      "LocationDTO" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/LocationId"
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "City Clinic"
+          }
+        }
+      },
+      "ScheduleDTO" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "$ref" : "#/components/schemas/ScheduleId"
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Dr. John Smith"
+          }
+        }
+      },
+      "AvailabilityRequestDTO" : {
+        "type" : "object",
+        "required" : [ "locationId", "scheduleIds", "period", "appointments" ],
+        "properties" : {
+          "locationId" : {
+            "$ref" : "#/components/schemas/LocationId"
+          },
+          "scheduleIds" : {
+            "description" : "Array of schedule ids to get availabilities.",
+            "type" : "array",
+            "items" : {
+              "type" : "integer"
+            },
+            "example" : [ 144, 145 ]
+          },
+          "period" : {
+            "$ref" : "#/components/schemas/PeriodDTO"
+          },
+          "appointments" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AvailabilityRequestAppointmentDTO"
+            },
+            "example" : [ {
+              "index" : 1,
+              "appointmentTypeId" : 33,
+              "speciesId" : 5
+            }, {
+              "index" : 2,
+              "appointmentTypeId" : 54,
+              "speciesId" : 3
+            } ]
+          }
+        }
+      },
+      "PeriodDTO" : {
+        "type" : "object",
+        "required" : [ "from", "to" ],
+        "properties" : {
+          "from" : {
+            "type" : "string",
+            "example" : "2019-01-01T00:00:00+01:30"
+          },
+          "to" : {
+            "type" : "string",
+            "example" : "2019-01-02T23:59:59+01:30"
+          }
+        }
+      },
+      "AvailabilityRequestAppointmentDTO" : {
+        "type" : "object",
+        "required" : [ "index", "appointmentTypeId", "speciesId" ],
+        "properties" : {
+          "index" : {
+            "type" : "integer",
+            "minimum" : 1,
+            "example" : 1
+          },
+          "appointmentTypeId" : {
+            "$ref" : "#/components/schemas/AppointmentTypeId"
+          },
+          "speciesId" : {
+            "$ref" : "#/components/schemas/SpeciesId"
+          }
+        }
+      },
+      "AvailabilityResponseSlotsDTO" : {
+        "type" : "object",
+        "properties" : {
+          "scheduleId" : {
+            "$ref" : "#/components/schemas/ScheduleId"
+          },
+          "slot" : {
+            "$ref" : "#/components/schemas/Timestamp"
+          }
+        }
+      },
+      "BookingRequestDTO" : {
+        "type" : "object",
+        "required" : [ "locationId", "scheduleId", "slot", "client", "appointments" ],
+        "properties" : {
+          "locationId" : {
+            "$ref" : "#/components/schemas/LocationId"
+          },
+          "scheduleId" : {
+            "$ref" : "#/components/schemas/ScheduleId"
+          },
+          "slot" : {
+            "$ref" : "#/components/schemas/Timestamp"
+          },
+          "client" : {
+            "$ref" : "#/components/schemas/ClientDTO"
+          },
+          "appointments" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BookingRequestAppointmentDTO"
+            },
+            "example" : [ {
+              "index" : 1,
+              "appointmentTypeId" : 33,
+              "speciesId" : 5,
+              "patientName" : "Roger",
+              "notes" : "Rogger is refusing food since last Tuesday."
+            }, {
+              "index" : 2,
+              "appointmentTypeId" : 54,
+              "speciesId" : 3,
+              "patientName" : "Toby",
+              "notes" : "Toby is too agressive lately."
+            } ]
+          }
+        }
+      },
+      "BookingRequestAppointmentDTO" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/AvailabilityRequestAppointmentDTO"
+        }, {
+          "type" : "object",
+          "required" : [ "patientName", "notes" ],
+          "properties" : {
+            "patientName" : {
+              "type" : "string",
+              "example" : "Roger"
+            },
+            "notes" : {
+              "type" : "string",
+              "example" : "My pet is refusing food since last Tuesday."
+            }
+          }
+        } ]
+      },
+      "ClientDTO" : {
+        "type" : "object",
+        "required" : [ "lastName", "email", "phone" ],
+        "properties" : {
+          "clientId" : {
+            "type" : "string",
+            "example" : "ukdemo-2324-cx45432"
+          },
+          "firstName" : {
+            "type" : "string",
+            "example" : "John"
+          },
+          "lastname" : {
+            "type" : "string",
+            "example" : "Smith"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "example" : "johnsmith@email.com"
+          },
+          "phone" : {
+            "type" : "string",
+            "pattern" : "^(\\+\\d{2})?\\d{10}$",
+            "example" : "+442071646078"
+          }
+        }
+      },
+      "AppointmentDTO" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BookingRequestAppointmentDTO"
+        }, {
+          "type" : "object",
+          "required" : [ "time" ],
+          "properties" : {
+            "time" : {
+              "$ref" : "#/components/schemas/Timestamp"
+            },
+            "patientId" : {
+              "type" : "string",
+              "example" : "ukdemo-2324-px11213"
+            }
+          }
+        } ]
+      },
+      "BookingDTO" : {
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BookingRequestDTO"
+        }, {
+          "type" : "object",
+          "required" : [ "BookingId" ],
+          "properties" : {
+            "BookingId" : {
+              "$ref" : "#/components/schemas/BookingId"
+            },
+            "appointments" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/components/schemas/AppointmentDTO"
+              },
+              "example" : [ {
+                "index" : 1,
+                "appointmentTypeId" : 33,
+                "speciesId" : 5,
+                "patientName" : "Roger",
+                "notes" : "Rogger is refusing food since last Tuesday.",
+                "time" : "2019-01-01T09:15:00+01:30",
+                "patientId" : "ukdemo-2324-px11213"
+              }, {
+                "index" : 2,
+                "appointmentTypeId" : 54,
+                "speciesId" : 3,
+                "patientName" : "Toby",
+                "notes" : "Toby is too agressive lately.",
+                "time" : "2019-01-01T09:30:00+01:30",
+                "patientId" : null
+              } ]
+            }
+          }
+        } ]
+      },
+      "LocationId" : {
+        "type" : "integer",
+        "example" : 21
+      },
+      "AppointmentTypeId" : {
+        "type" : "integer",
+        "example" : 33
+      },
+      "SpeciesId" : {
+        "type" : "integer",
+        "example" : 5
+      },
+      "ScheduleId" : {
+        "type" : "integer",
+        "example" : 144
+      },
+      "Timestamp" : {
+        "type" : "string",
+        "format" : "date-time",
+        "example" : "2019-01-01T09:15:00+01:30"
+      },
+      "BookingId" : {
+        "type" : "string",
+        "example" : "4DG45H56HDG345SD2E3A82"
+      }
+    },
+    "responses" : {
+      "UnauthorizedError" : {
+        "description" : "Access token is missing or invalid"
+      }
+    },
+    "parameters" : {
+      "LocationId" : {
+        "in" : "path",
+        "name" : "id",
+        "description" : "Location ID",
+        "required" : true,
+        "schema" : {
+          "$ref" : "#/components/schemas/LocationId"
+        }
+      },
+      "SiteHash" : {
+        "in" : "header",
+        "name" : "Site-Hash",
+        "description" : "Site-Hash of the Vet Practice's account on Vetstoria platform\n",
+        "required" : true,
+        "schema" : {
+          "type" : "string",
+          "example" : "D23H8932GD"
+        }
+      }
+    },
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "scheme" : "bearer"
+      }
+    }
+  },
+  "servers" : [ {
+    "description" : "SwaggerHub API Auto Mocking",
+    "url" : "https://virtserver.swaggerhub.com/vetstoria/Booking-API/1.0"
+  } ]
+}
